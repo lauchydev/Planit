@@ -20,12 +20,20 @@ class Booking extends Model
         'booked_at' => 'datetime',
     ];
 
-    /* Many-to-one relationship for bookings to users */
+    /** 
+     * Many-To-One relationship for bookings to users 
+     * 
+     * @return User
+     */
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }
 
-    /* Many-to-one relationship for bookings to events */
+    /**
+     * Many-To-One relationship for bookings to events 
+     * 
+     * @return Event 
+     */
     public function event(): BelongsTo {
         return $this->belongsTo(Event::class);
     }
