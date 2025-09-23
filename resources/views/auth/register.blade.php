@@ -39,6 +39,15 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
+        <!-- Privacy Consent -->
+        <div class="mt-4">
+            <label for="privacy_consent" class="inline-flex items-center">
+                <input id="privacy_consent" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="privacy_consent" value="1" {{ old('privacy_consent') ? 'checked' : '' }}>
+                <span class="ml-2 text-sm text-gray-600"> {{__('I agree to the privacy policy and terms of service')}}</span>
+            </label>
+            <x-input-error :messages="$errors->get('privacy_consent')" class="mt-2" />
+        </div>
+
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
