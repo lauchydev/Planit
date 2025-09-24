@@ -46,11 +46,11 @@ class EventController extends Controller
         return view('events.index', compact('events'));
     }
 
-    /* Show Event */
-    public function show(Event $event) {
+    /* Show Event Details */
+    public function details(Event $event) {
         $event->load('organiser', 'bookings.user');
         
-        return view('events.show', compact('event'));
+        return view('events.details', compact('event'));
     }
 
     /* Create Event */
@@ -66,7 +66,7 @@ class EventController extends Controller
         $data = $request->validated();
         $data['organiser_id'] = auth()->id();
         $event = Event::create($data);
-        return redirect()->route('events.show', $event)->with('success', 'Event Created Successfully');
+        return redirect()->route('events.details', $event)->with('success', 'Event Created Successfully');
     }
 
     /* Update Event */
@@ -80,7 +80,7 @@ class EventController extends Controller
     public function handleUpdate(UpdateEventRequest $request, Event $event) {
         $data = $request->validated();
         $event->update($data);
-        return redirect()->route('events.show', $event)->with('success', 'Event Updated Successfully');
+        return redirect()->route('events.details', $event)->with('success', 'Event Updated Successfully');
     }
 
     /* Delete Event */
@@ -89,11 +89,26 @@ class EventController extends Controller
 
         /* Check if bookings exist before deleting */
         if ($event->bookings()->exists()) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'Cannot delete an event that has bookings.');
         }
         $event->delete();
         return redirect()->route('home')->with('success', 'Event Deleted Successfully');
+    }
+
+    /* Organiser's events list */
+    public function myEvents(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user && $user->isOrganiser(), 403);
+
+        $query = Event::query()
+            ->where('organiser_id', $user->id)
+            ->withCount('bookings')
+            ->orderBy('start_time');
+
+        $events = $query->paginate(10)->withQueryString();
+        return view('events.my-events', compact('events'));
     }
 
 

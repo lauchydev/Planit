@@ -60,7 +60,7 @@
         </button>
 
         {{-- Cancel Button --}}
-        <a href="{{ isset($event) ? route('events.show', $event) : route('home') }}"
+        <a href="{{ isset($event) ? route('events.details', $event) : route('home') }}"
            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <x-lucide-arrow-left class="w-4 h-4" />
             Cancel

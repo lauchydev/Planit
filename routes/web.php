@@ -20,6 +20,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/events/{event}/book', [BookingController::class, 'store'])->name('events.book');
     Route::delete('/events/{event}/bookings/{booking}', [BookingController::class, 'delete'])->name('events.bookings.delete');
 
+    /* User Bookings */
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
+    /* Organised Events */
+    Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.mine');
+
     /* Protected Profile Routes */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -27,7 +33,8 @@ Route::middleware('auth')->group(function () {
 });
 
 /* Unprotected Event Route (No auth) */
-Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+/* Fixed: controller method was 'details', not 'list' */
+Route::get('/events/{event}', [EventController::class, 'details'])->name('events.details');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

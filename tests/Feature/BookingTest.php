@@ -21,7 +21,7 @@ class BookingTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('events.book', $event));
 
-        $response->assertRedirect(route('events.show', $event));
+        $response->assertRedirect(route('events.details', $event));
         $this->assertDatabaseHas('bookings', [
             'user_id' => $user->id,
             'event_id' => $event->id,
@@ -37,7 +37,7 @@ class BookingTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('events.book', $event));
 
-        $response->assertRedirect(route('events.show', $event));
+        $response->assertRedirect(route('events.details', $event));
         $this->assertEquals(1, Booking::where('user_id', $user->id)->where('event_id', $event->id)->count());
     }
 
@@ -51,7 +51,7 @@ class BookingTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('events.book', $event));
 
-        $response->assertRedirect(route('events.show', $event));
+        $response->assertRedirect(route('events.details', $event));
         $this->assertEquals(1, Booking::where('event_id', $event->id)->count());
     }
 
@@ -63,7 +63,7 @@ class BookingTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('events.book', $event));
 
-        $response->assertRedirect(route('events.show', $event));
+        $response->assertRedirect(route('events.details', $event));
         $this->assertDatabaseMissing('bookings', [
             'user_id' => $user->id,
             'event_id' => $event->id,
@@ -78,7 +78,7 @@ class BookingTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('events.book', $event));
 
-        $response->assertRedirect(route('events.show', $event));
+        $response->assertRedirect(route('events.details', $event));
         $this->assertDatabaseMissing('bookings', [
             'user_id' => $user->id,
             'event_id' => $event->id,

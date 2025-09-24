@@ -10,6 +10,19 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class BookingController extends Controller
 {
     use AuthorizesRequests;
+    /**
+     * Show the user's bookings
+     */
+    public function index()
+    {
+        $user = auth()->user();
+        $bookings = $user->bookings()
+            ->with(['event.organiser'])
+            ->whereHas('event')
+            ->orderBy(Event::select('start_time')->whereColumn('events.id', 'bookings.event_id'))
+            ->paginate(8);
+        return view('bookings.index', compact('bookings'));
+    }
     
     public function store(Event $event): RedirectResponse
     {
@@ -25,22 +38,22 @@ class BookingController extends Controller
          * @return boolean
          */
         if (!$user->can('book', $event)) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'You are not allowed to book this event.');
         }
 
         if ($event->hasStarted()) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'This event has already started.');
         }
 
         if ($event->isFull()) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'We are sorry, this event is full. :(');
         }
 
         if ($user->bookings()->where('event_id', $event->id)->exists()) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'You have already booked this event.');
         }
 
@@ -50,7 +63,7 @@ class BookingController extends Controller
             'booked_at' => now(),
         ]);
 
-        return redirect()->route('events.show', $event)
+        return redirect()->route('events.details', $event)
             ->with('success', 'Booking confirmed!');
     }
 
@@ -62,12 +75,12 @@ class BookingController extends Controller
         }
 
         if (!$user->can('cancel', $booking)) {
-            return redirect()->route('events.show', $event)
+            return redirect()->route('events.details', $event)
                 ->with('error', 'You cannot cancel this booking.');
         }
 
         $booking->delete();
-        return redirect()->route('events.show', $event)
+        return redirect()->route('events.details', $event)
             ->with('success', 'Booking cancelled.');
     }
 }

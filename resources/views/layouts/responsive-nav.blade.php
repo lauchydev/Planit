@@ -5,18 +5,15 @@
 
     @auth
         @if(auth()->user()->isAttendee())
-{{--             <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
+            <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
                 {{ __('My Bookings') }}
-            </x-responsive-nav-link> --}}
+            </x-responsive-nav-link>
         @endif
 
         @if(auth()->user()->isOrganiser())
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-{{--             <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
+            <x-responsive-nav-link :href="route('events.mine')" :active="request()->routeIs('events.mine')">
                 {{ __('My Events') }}
-            </x-responsive-nav-link> --}}
+            </x-responsive-nav-link>
         @endif
     @endauth
 </div>
