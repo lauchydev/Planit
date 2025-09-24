@@ -28,6 +28,10 @@ class Event extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+    protected $appends = [
+        'starts_at',
+        'ends_at',
+    ];
 
     /**
      * Many-to-one relationship where many events can belong to one user 
@@ -87,6 +91,13 @@ class Event extends Model
         return $this->start_time;
     }
     public function endsAt() {
+        return $this->end_time;
+    }
+
+    public function getStartsAtAttribute() {
+        return $this->start_time;
+    }
+    public function getEndsAtAttribute() {
         return $this->end_time;
     }
 
