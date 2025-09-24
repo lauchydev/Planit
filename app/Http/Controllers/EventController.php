@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Event;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -37,7 +39,7 @@ class EventController extends Controller
             $query->where('location', 'like', "%{$request->location}%");
         }
 
-        $events = $query->paginate(12)->withQueryString();
+        $events = $query->paginate(perPage: 8)->withQueryString();
 
         return view('events.index', compact('events'));
     }
@@ -47,6 +49,49 @@ class EventController extends Controller
         
         return view('events.show', compact('event'));
     }
+
+
+    /**
+     * Crud Operations
+     */
+
+
+    /* Create Form */
+    public function create() {
+        $this->authorize('create', Event::class);
+        return view('events.create');
+    }
+
+    /* Handle Event Creation */
+    public function handleCreate(StoreEventRequest $request) {
+        $data = $request->validated();
+        $data['organiser_id'] = auth()->id();
+        $event = Event::create($data);
+
+        return redirect()->route('events.show', $event)->with('success', 'Event Created Successfully');
+    }
+
+    /* Edit an Event */
+    public function update(Event $event) {
+        $this->authorize('update', $event);
+        return view('events.update', compact('event'));
+    }
+
+    /* Handle Event Edit */
+    public function handleUpdate(UpdateEventRequest $request, Event $event) {
+        $event->update($request->validated());
+        return redirect()->route('events.show', $event)->with('success', 'Event Updated');
+
+    }
+
+    /* Delete an Event */
+    public function delete(Event $event) {
+        $this->authorize('delete', $event);
+        $event->delete();
+        return redirect()->route('home')->with('success', 'Event Deleted');
+    }
+
+
 
 
 }

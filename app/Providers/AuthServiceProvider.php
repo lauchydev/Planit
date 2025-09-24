@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Event;
 use App\Policies\EventPolicy;
-use Event;
-use Illuminate\Support\ServiceProvider;
-
-class AuthServiceProvider extends ServiceProvider
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         Event::class => EventPolicy::class,

@@ -83,5 +83,12 @@ class Event extends Model
         return max(0, $this->capacity - $this->bookings()->count());
     }
 
+    public function startsAt() {
+        return $this->start_time;
+    }
+    public function endsAt() {
+        return $this->end_time;
+    }
+
 
 }
