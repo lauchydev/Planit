@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
     /* Organised Events */
-    Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.mine');
+    Route::get('/events/organised', [EventController::class, 'organisedEvents'])->name('events.organised');
 
     /* Protected Profile Routes */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -33,7 +33,6 @@ Route::middleware('auth')->group(function () {
 });
 
 /* Unprotected Event Route (No auth) */
-/* Fixed: controller method was 'details', not 'list' */
 Route::get('/events/{event}', [EventController::class, 'details'])->name('events.details');
 
 Route::get('/dashboard', function () {

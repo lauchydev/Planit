@@ -97,7 +97,7 @@ class EventController extends Controller
     }
 
     /* Organiser's events list */
-    public function myEvents(Request $request)
+    public function organisedEvents(Request $request)
     {
         $user = $request->user();
         abort_unless($user && $user->isOrganiser(), 403);
@@ -108,7 +108,7 @@ class EventController extends Controller
             ->orderBy('start_time');
 
         $events = $query->paginate(10)->withQueryString();
-        return view('events.my-events', compact('events'));
+        return view('events.organised', compact('events'));
     }
 
 
