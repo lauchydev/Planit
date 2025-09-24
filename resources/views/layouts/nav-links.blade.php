@@ -8,10 +8,10 @@
             {{ __('My Bookings') }}
         </x-nav-link> --}}
     @endif
-
+    
     @if(auth()->user()->isOrganiser())
-        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-            {{ __('Dashboard') }}
+        <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+            {{ __('Create Event') }}
         </x-nav-link>
 {{--         <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
             {{ __('My Events') }}

@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreEventRequest;
-use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EventController extends Controller
 {
+    use AuthorizesRequests;
     public function index(Request $request) {
         $query = Event::query()
             ->where('start_time', '>', now())
@@ -39,59 +41,60 @@ class EventController extends Controller
             $query->where('location', 'like', "%{$request->location}%");
         }
 
-        $events = $query->paginate(perPage: 8)->withQueryString();
+        $events = $query->paginate(8)->withQueryString();
 
         return view('events.index', compact('events'));
     }
 
+    /* Show Event */
     public function show(Event $event) {
         $event->load('organiser', 'bookings.user');
         
         return view('events.show', compact('event'));
     }
 
-
-    /**
-     * Crud Operations
-     */
-
-
-    /* Create Form */
-    public function create() {
+    /* Create Event */
+    public function create()
+    {
         $this->authorize('create', Event::class);
         return view('events.create');
     }
 
     /* Handle Event Creation */
-    public function handleCreate(StoreEventRequest $request) {
+    public function handleCreate(StoreEventRequest $request)
+    {
         $data = $request->validated();
         $data['organiser_id'] = auth()->id();
         $event = Event::create($data);
-
         return redirect()->route('events.show', $event)->with('success', 'Event Created Successfully');
     }
 
-    /* Edit an Event */
-    public function update(Event $event) {
+    /* Update Event */
+    public function update(Event $event)
+    {
         $this->authorize('update', $event);
-        return view('events.update', compact('event'));
+        return view('events.edit', compact('event'));
     }
 
-    /* Handle Event Edit */
+    /* Handle Event Update */
     public function handleUpdate(UpdateEventRequest $request, Event $event) {
-        $event->update($request->validated());
-        return redirect()->route('events.show', $event)->with('success', 'Event Updated');
-
+        $data = $request->validated();
+        $event->update($data);
+        return redirect()->route('events.show', $event)->with('success', 'Event Updated Successfully');
     }
 
-    /* Delete an Event */
+    /* Delete Event */
     public function delete(Event $event) {
         $this->authorize('delete', $event);
+
+        /* Check if bookings exist before deleting */
+        if ($event->bookings()->exists()) {
+            return redirect()->route('events.show', $event)
+                ->with('error', 'Cannot delete an event that has bookings.');
+        }
         $event->delete();
-        return redirect()->route('home')->with('success', 'Event Deleted');
+        return redirect()->route('home')->with('success', 'Event Deleted Successfully');
     }
-
-
 
 
 }

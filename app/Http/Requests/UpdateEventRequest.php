@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Event;
 
 class UpdateEventRequest extends FormRequest
 {
@@ -11,8 +12,8 @@ class UpdateEventRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $event = $this->route('event');
-        return auth()->check() && $event instanceof Event && $this->user()->can('update', $event);
+    $event = $this->route('event');
+    return auth()->check() && $event instanceof Event && $this->user()->can('update', $event);
     }
 
     /**

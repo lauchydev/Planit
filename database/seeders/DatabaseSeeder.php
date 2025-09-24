@@ -14,10 +14,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        /* Create an Organiser and User for testing */
+        User::updateOrCreate(
+            ['email' => 'organiser@email.com'],
+            [
+                'name' => 'Organiser',
+                'role' => 'organiser',
+                'password' => bcrypt('password'),
+            ],
+        );
+        User::updateOrCreate(
+            ['email' => 'user@email.com'],
+            [
+                'name' => 'Attendee',
+                'role' => 'attendee',
+                'password' => bcrypt('password'),
+            ],
+        );
+
+
+
         /* Create 2 organisers */
         $organisers = User::factory()->organiser()->count(2)->create([
             'password' => bcrypt('password123'),
         ]);
+
+        
 
         /* Create some attendees for demo */
         $attendees = User::factory()->attendee()->count(10)->create([

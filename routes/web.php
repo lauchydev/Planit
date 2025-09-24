@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,10 +11,13 @@ Route::get('/', [EventController::class, 'index'])->name('home');
 Route::middleware('auth')->group(function () {
     /* CRUD for Events */
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
-    Route::post('/events', [EventController::class, 'store'])->name('events.store');
-    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
-    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
-    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::post('/events', [EventController::class, 'handleCreate'])->name('events.handleCreate');
+    Route::get('/events/{event}/edit', [EventController::class, 'update'])->name('events.update');
+    Route::put('/events/{event}', [EventController::class, 'handleUpdate'])->name('events.handleUpdate');
+    Route::delete('/events/{event}', [EventController::class, 'delete'])->name('events.delete');
+    
+    /* Bookings */
+    Route::post('/events/{event}/book', [BookingController::class, 'store'])->name('events.book');
 
     /* Protected Profile Routes */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
