@@ -12,19 +12,22 @@
                     {{-- Booked Event --}}
                     <div class="bg-green-50 border border-green-200 rounded-md p-4">
                         <div class="flex">
-                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
+                            <x-lucide-check-circle class="h-5 w-5 text-green-400" />
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-green-800">You're registered!</h3>
                                 <div class="mt-2 text-sm text-green-700">
                                     <p>You booked this event on {{ $userBooking->booked_at->format('M j, Y \a\t g:i A') }}</p>
                                 </div>
                                 <div class="mt-4">
-                                    {{-- Cancel Booking --}}
-                                    <button class="bg-gray-300 text-gray-500 px-4 py-2 rounded-md text-sm">
-                                        Cancel Booking
-                                    </button>
+                                    @if(!$event->hasStarted())
+                                        <form action="{{ route('events.bookings.delete', [$event, $userBooking]) }}" method="POST" onsubmit="return confirm('Cancel your booking?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                                Cancel Booking
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>

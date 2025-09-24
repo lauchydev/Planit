@@ -53,4 +53,21 @@ class BookingController extends Controller
         return redirect()->route('events.show', $event)
             ->with('success', 'Booking confirmed!');
     }
+
+    public function delete(Event $event, Booking $booking): RedirectResponse
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if (!$user->can('cancel', $booking)) {
+            return redirect()->route('events.show', $event)
+                ->with('error', 'You cannot cancel this booking.');
+        }
+
+        $booking->delete();
+        return redirect()->route('events.show', $event)
+            ->with('success', 'Booking cancelled.');
+    }
 }

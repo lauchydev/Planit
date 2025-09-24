@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     
     /* Bookings */
     Route::post('/events/{event}/book', [BookingController::class, 'store'])->name('events.book');
+    Route::delete('/events/{event}/bookings/{booking}', [BookingController::class, 'delete'])->name('events.bookings.delete');
 
     /* Protected Profile Routes */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
