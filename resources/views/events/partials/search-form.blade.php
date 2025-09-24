@@ -1,7 +1,7 @@
 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
     <div class="p-6">
         <form method="GET" action="{{ route('home') }}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <!-- Search -->
                 <div>
                     <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
@@ -42,6 +42,16 @@
                            value="{{ request('location') }}"
                            placeholder="Filter by location..."
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+
+                <!-- Scope -->
+                <div>
+                    <label for="scope" class="block text-sm font-medium text-gray-700">Scope</label>
+                    <select name="scope" id="scope" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="" @selected(request('scope')===null || request('scope')==='')>Upcoming</option>
+                        <option value="past" @selected(request('scope')==='past')>Past</option>
+                        <option value="all" @selected(request('scope')==='all')>All</option>
+                    </select>
                 </div>
             </div>
 

@@ -12,10 +12,17 @@ class EventController extends Controller
 {
     use AuthorizesRequests;
     public function index(Request $request) {
-        $query = Event::query()
-            ->where('start_time', '>', now())
-            ->with('organiser')
-            ->orderBy('start_time');
+        $scope = $request->get('scope');
+        $query = Event::query()->with('organiser');
+
+        if ($scope === 'past') {
+            $query->where('start_time', '<=', now());
+        } elseif ($scope === 'all') {
+        } else { 
+            $query->where('start_time', '>', now());
+        }
+
+        $query->orderBy('start_time');
 
 
         /* If someone searches for an event by title/description/location  */

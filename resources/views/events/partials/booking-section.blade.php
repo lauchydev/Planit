@@ -34,13 +34,15 @@
                     </div>
                 @elseif($event->hasStarted())
                     {{-- Finished Event --}}
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
-                        <p class="text-gray-600">This event has already occurred.</p>
+                    <div class="bg-red-50 border border-red-200 rounded-md p-4 mx-auto max-w-md text-center">
+                        <p class="text-red-600 font-semibold">Sorry!</p>
+                        <p class="text-red-600 mt-1">This event has already concluded</p>
                     </div>
                 @elseif($event->isFull())
                     {{-- Full Event --}}
-                    <div class="bg-red-50 border border-red-200 rounded-md p-4">
-                        <p class="text-red-700">This event is full. No more spots available.</p>
+                    <div class="bg-red-50 border border-red-200 rounded-md p-4 mx-auto max-w-md text-center">
+                        <p class="text-red-600 font-semibold">Sorry!</p>
+                        <p class="text-red-600 mt-1">This event has been booked out</p>
                     </div>
                 @else
                     {{-- Book Event --}}
@@ -62,12 +64,12 @@
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
         <div class="p-6">
             <h3 class="font-semibold text-lg text-gray-900 mb-4">Book This Event</h3>
-            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <p class="text-yellow-700">
-                    <a href="{{ route('login') }}" class="font-medium underline">Login</a> or 
-                    <a href="{{ route('register') }}" class="font-medium underline">Register</a> 
-                    to book this event.
+            <div class="bg-red-50 border border-red-200 rounded-md p-4 mx-auto max-w-md text-center text-red-700">
+                <p>
+                    You must be logged in to book this event.
                 </p>
+                <a href="{{ route('login') }}" class="font-medium underline">Login</a> or 
+                <a href="{{ route('register') }}" class="font-medium underline">Register</a> 
             </div>
         </div>
     </div>
