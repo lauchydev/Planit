@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,22 +30,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $validated = $request->validate([
+            'name' => ['required','string','max:255'],
+            'email' => ['required','string','email','max:255','unique:users,email'],
+            'password' => ['required','confirmed', Rules\Password::defaults()],
+            'privacy_consent' => ['required','accepted'],
+        ], [
+            'privacy_consent.accepted' => 'You must accept the privacy policy to register.',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'attendee',
         ]);
 
         event(new Registered($user));
-
         Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('home');
     }
 }

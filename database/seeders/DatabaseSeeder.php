@@ -14,10 +14,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        /* Create an Organiser and User for testing */
+        User::updateOrCreate(
+            ['email' => 'organiser@email.com'],
+            [
+                'name' => 'Organiser',
+                'role' => 'organiser',
+                'password' => bcrypt('password'),
+            ],
+        );
+        User::updateOrCreate(
+            ['email' => 'user@email.com'],
+            [
+                'name' => 'Attendee',
+                'role' => 'attendee',
+                'password' => bcrypt('password'),
+            ],
+        );
+
+
+
         /* Create 2 organisers */
         $organisers = User::factory()->organiser()->count(2)->create([
             'password' => bcrypt('password123'),
         ]);
+
+        
 
         /* Create some attendees for demo */
         $attendees = User::factory()->attendee()->count(10)->create([
@@ -34,26 +57,19 @@ class DatabaseSeeder extends Seeder
 
 
         /* Get the list of upcoming events */
-        $upcomingEvents = Event::where('start_time', '>', now())->get();
-
-        /* Add some bookings for the upcoming events */
-        foreach ($upcomingEvents as $event) {
-
-            $numAttendees = rand(1, $event->capacity);
-
-            $randomAttendees = $attendees->random(min($numAttendees, $attendees->count()));
-
-            foreach ($randomAttendees as $attendee) {
-                Booking::create([
-                    'user_id' => $attendee->id,
-                    'event_id' => $event->id,
+        $upcoming = Event::where('start_time','>', now())->get();
+        foreach ($upcoming as $event) {
+            $toBook = min($event->capacity - 1, rand(0, floor($event->capacity * 0.5)));
+            if ($toBook <= 0) continue;
+            $attendees->random(min($toBook, $attendees->count()))
+                ->each(fn($user) => $event->bookings()->create([
+                    'user_id' => $user->id,
                     'booked_at' => now(),
-                ]);
-            }
+                ]));
         }
 
         /* Create a full event for case handling */
-        $fullEvent = $upcomingEvents->first();
+        $fullEvent = $upcoming->first();
         if ($fullEvent) {
             $fullEvent->bookings()->delete();
     
