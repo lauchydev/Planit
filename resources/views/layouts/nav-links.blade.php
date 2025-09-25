@@ -13,7 +13,7 @@
         <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
             {{ __('Create Event') }}
         </x-nav-link>
-        <x-nav-link :href="route('events.mine')" :active="request()->routeIs('events.mine')">
+        <x-nav-link :href="route('events.organised')" :active="request()->routeIs('events.organised')">
             {{ __('My Events') }}
         </x-nav-link>
     @endif

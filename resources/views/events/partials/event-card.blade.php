@@ -17,10 +17,10 @@
             {{ Str::limit($event->description, 120) }}
         </p>
 
-        <!-- Event Meta Information -->
+        {{-- Show event meta info --}}
         @include('events.partials.event-meta', ['event' => $event])
 
-        <!-- Action Button -->
+        {{-- View Event Details --}}
         <div class="mt-4">
             <a href="{{ route('events.details', $event) }}" 
                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
