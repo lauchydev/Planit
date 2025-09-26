@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $event->title }}</h2>
-            <a href="{{ route('home') }}" class="text-indigo-600 hover:text-indigo-800"> Back to Events</a>
+            <a href="{{ route('events.index') }}" class="text-indigo-600 hover:text-indigo-800"> Back to Events</a>
         </div>
     </x-slot>
     

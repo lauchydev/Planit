@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
@@ -12,46 +14,84 @@ class EventController extends Controller
 {
     use AuthorizesRequests;
     public function index(Request $request) {
-        $scope = $request->get('scope');
-        $query = Event::query()->with('organiser');
+        $query = Event::query()
+            ->with(['organiser', 'tags'])
+            ->orderBy('start_time', 'asc')->orderBy('id', 'asc');
 
+        /* Scope filtering */
+        $scope = $request->string('scope')->toString();
         if ($scope === 'past') {
             $query->where('start_time', '<=', now());
-        } elseif ($scope === 'all') {
-        } else { 
+        } elseif ($scope !== 'all') {
             $query->where('start_time', '>', now());
         }
 
-        $query->orderBy('start_time');
-
-
-        /* If someone searches for an event by title/description/location  */
-        if($request->filled('search')) {
-            $search = $request->search;
-            /* SQL Query building */
-            $query->where(function($q) use ($search) {
+        /* Text search across title/location/description */
+        if ($search = trim($request->string('search')->toString())) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        if ($request->filled('date_from')) {
-            $query->where('start_time', '>=', $request->date_from);
+        /* Organiser filter */
+        if ($organiserId = $request->integer('organiser_id')) {
+            $query->where('organiser_id', $organiserId);
         }
 
-        if ($request->filled('date_to')) {
-            $query->where('start_time', '<=', $request->date_to . ' 23:59:59');
+        /* Non AJAX tag filter */
+        $tagIds = $request->input('tags', []); 
+        if (!empty($tagIds)) {
+            $query->withAnyTags($tagIds);
         }
 
-        if ($request->filled('location')) {
-            $query->where('location', 'like', "%{$request->location}%");
+        $events = $query->paginate(8)->withQueryString();
+        $tags   = Tag::orderBy('name')->get();
+        $organisers = User::whereHas('organisedEvents')
+            ->orderBy('name')
+            ->get(['id','name']);
+
+        return view('events.index', compact('events', 'tags', 'organisers'));
+    }
+
+    public function filter(Request $request)
+    {
+        $query = Event::query()
+            ->with(['organiser', 'tags'])
+            ->orderBy('start_time', 'asc')->orderBy('id', 'asc');
+
+        $scope = $request->string('scope')->toString();
+        if ($scope === 'past') {
+            $query->where('start_time', '<=', now());
+        } elseif ($scope !== 'all') {
+            $query->where('start_time', '>', now());
+        }
+
+        if ($search = trim($request->string('search')->toString())) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($organiserId = $request->integer('organiser_id')) {
+            $query->where('organiser_id', $organiserId);
+        }
+
+        /* AJAX Tag Filter */
+        $tagIds = $request->input('tags', []);
+        if (!empty($tagIds)) {
+            $query->withAnyTags($tagIds);
         }
 
         $events = $query->paginate(8)->withQueryString();
 
-        return view('events.index', compact('events'));
+        $html = view('events.partials.list', compact('events'))->render();
+        return response()->json(['html' => $html]);
     }
+
 
     /* Show Event Details */
     public function details(Event $event) {
@@ -100,7 +140,7 @@ class EventController extends Controller
                 ->with('error', 'Cannot delete an event that has bookings.');
         }
         $event->delete();
-        return redirect()->route('home')->with('success', 'Event Deleted Successfully');
+    return redirect()->route('events.index')->with('success', 'Event Deleted Successfully');
     }
 
 

@@ -1,5 +1,5 @@
 <div class="pt-2 pb-3 space-y-1">
-    <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
+    <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('home')">
         {{ __('Events') }}
     </x-responsive-nav-link>
 

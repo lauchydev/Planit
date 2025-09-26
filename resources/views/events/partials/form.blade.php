@@ -4,14 +4,14 @@
         <label class="block text-sm font-medium text-gray-700">Title</label>
         <input name="title" maxlength="100" required
                value="{{ old('title', $event->title ?? '') }}"
-               class="mt-1 w-full border-gray-300 rounded-md"/>
+               class="mt-1 w-full border-gray-300 rounded-md" placeholder="max 255 chars" />
         <x-input-error :messages="$errors->get('title')" class="mt-1"/>
     </div>
 
     <div>
         <label class="block text-sm font-medium text-gray-700">Description</label>
         <textarea name="description" rows="5" required
-                  class="mt-1 w-full border-gray-300 rounded-md">{{ old('description', $event->description ?? '') }}</textarea>
+                  class="mt-1 w-full border-gray-300 rounded-md" placeholder="min 20 chars">{{ old('description', $event->description ?? '') }}</textarea>
         <x-input-error :messages="$errors->get('description')" class="mt-1"/>
     </div>
 
@@ -36,15 +36,15 @@
         <label class="block text-sm font-medium text-gray-700">Location</label>
         <input name="location" required
                value="{{ old('location', $event->location ?? '') }}"
-               class="mt-1 w-full border-gray-300 rounded-md"/>
+               class="mt-1 w-full border-gray-300 rounded-md" placeholder="e.g Suncorp Stadium"/>
         <x-input-error :messages="$errors->get('location')" class="mt-1"/>
     </div>
 
     <div>
         <label class="block text-sm font-medium text-gray-700">Capacity</label>
         <input type="number" name="capacity" min="1" max="1000" required
-               value="{{ old('capacity', $event->capacity ?? 50) }}"
-               class="mt-1 w-full border-gray-300 rounded-md"/>
+               value="{{ old('capacity', $event->capacity ?? '') }}"
+               class="mt-1 w-full border-gray-300 rounded-md" placeholder="1-1000"/>
         <x-input-error :messages="$errors->get('capacity')" class="mt-1"/>
     </div>
 
@@ -56,11 +56,15 @@
          class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-md text-sm font-medium shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
             <x-lucide-check class="w-4 h-4" />
-            Update Event
+            @if (isset(($event)))
+                Update Event
+            @else
+                Create Event
+            @endif
         </button>
 
         {{-- Cancel Button --}}
-        <a href="{{ isset($event) ? route('events.details', $event) : route('home') }}"
+        <a href="{{ isset($event) ? route('events.details', $event) : route('events.index') }}"
            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <x-lucide-arrow-left class="w-4 h-4" />
             Cancel

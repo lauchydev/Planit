@@ -1,47 +1,29 @@
 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
     <div class="p-6">
-        <form method="GET" action="{{ route('home') }}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <!-- Search -->
-                <div>
+        <form method="GET" action="{{ route('events.index') }}" id="filters" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Search (title/location/description) -->
+                <div class="lg:col-span-2">
                     <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
                     <input type="text" 
                            name="search" 
                            id="search"
                            value="{{ request('search') }}"
-                           placeholder="Event title, description, or location..."
+                           placeholder="Search by title, description or location..."
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
-                <!-- Date From -->
+                <!-- Organized by -->
                 <div>
-                    <label for="date_from" class="block text-sm font-medium text-gray-700">From Date</label>
-                    <input type="date" 
-                           name="date_from" 
-                           id="date_from"
-                           value="{{ request('date_from') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                </div>
-
-                <!-- Date To -->
-                <div>
-                    <label for="date_to" class="block text-sm font-medium text-gray-700">To Date</label>
-                    <input type="date" 
-                           name="date_to" 
-                           id="date_to"
-                           value="{{ request('date_to') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                </div>
-
-                <!-- Location -->
-                <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
-                    <input type="text" 
-                           name="location" 
-                           id="location"
-                           value="{{ request('location') }}"
-                           placeholder="Filter by location..."
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label for="organiser_id" class="block text-sm font-medium text-gray-700">Organized by</label>
+                    <select name="organiser_id" id="organiser_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">Any organiser</option>
+                        @isset($organisers)
+                            @foreach($organisers as $org)
+                                <option value="{{ $org->id }}" @selected((string)request('organiser_id') === (string)$org->id)>{{ $org->name }}</option>
+                            @endforeach
+                        @endisset
+                    </select>
                 </div>
 
                 <!-- Scope -->
@@ -55,11 +37,21 @@
                 </div>
             </div>
 
+            {{-- Tags (ADVANCED REQUIREMENT) --}}
+            @isset($tags)
+            <div class="flex flex-wrap gap-3 items-center">
+                <span class="text-sm font-medium text-gray-700">Tags:</span>
+                @foreach($tags as $tag)
+                    <label class="inline-flex items-center gap-1 text-sm">
+                        <input class="rounded-md cursor-pointer" type="checkbox" name="tags[]" value="{{ $tag->id }}" @checked(collect(request('tags', []))->contains($tag->id)) />
+                        <span>{{ $tag->name }}</span>
+                    </label>
+                @endforeach
+            </div>
+            @endisset
+
             <div class="flex gap-2">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    Search Events
-                </button>
-                <a href="{{ route('home') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
+                <a href="{{ route('events.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
                     Clear Filters
                 </a>
             </div>

@@ -7,7 +7,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', [EventController::class, 'index'])->name('home');
+Route::get('/', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/filter', [EventController::class, 'filter'])->name('events.filter');
 
 Route::middleware('auth')->group(function () {
     /* CRUD for Events */
@@ -23,8 +24,6 @@ Route::middleware('auth')->group(function () {
 
     /* User Bookings */
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
-
-
 
     /* Organiser Dashboard */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

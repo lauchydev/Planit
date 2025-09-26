@@ -34,7 +34,6 @@
                                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
                                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Booked</th>
                                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Remaining</th>
-                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Fullness</th>
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -50,7 +49,6 @@
                                         <td class="px-3 py-2 text-sm text-gray-700 text-right">{{ $row->capacity }}</td>
                                         <td class="px-3 py-2 text-sm text-gray-700 text-right">{{ $row->bookings_count }}</td>
                                         <td class="px-3 py-2 text-sm text-gray-700 text-right">{{ $row->remaining }}</td>
-                                        <td class="px-3 py-2 text-sm text-gray-700 text-right">{{ $row->fullness_percent }}%</td>
                                         <td class="px-3 py-2 text-sm">
                                             @php
                                                 $badge = match($row->status) {

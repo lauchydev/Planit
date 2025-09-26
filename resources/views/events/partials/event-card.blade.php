@@ -7,8 +7,13 @@
                     {{ $event->title }}
                 </a>
             </h3>
-            <span class="text-sm text-gray-500">
-                {{ $event->availableSpaces() }} spots left
+                @if ($event->hasStarted())
+                    <span class="text-sm text-red-500"> CLOSED </span>
+                @elseif ($event->isFull())
+                    <span class="text-sm text-red-500"> FULL </span>
+                @else
+                <span class="text-sm text-gray-500"> {{ $event->availableSpaces() }} spots left </span>
+                @endif
             </span>
         </div>
 
@@ -19,6 +24,14 @@
 
         {{-- Show event meta info --}}
         @include('events.partials.event-meta', ['event' => $event])
+
+        @if(isset($event->tags) && $event->tags->isNotEmpty())
+            <p class="mt-4 text-xs text-blue-500">
+            @foreach($event->tags as $tag)
+                <span class="inline-block bg-blue-100 px-2 py-0.5 rounded mr-1">{{ $tag->name }}</span>
+            @endforeach
+            </p>
+        @endif
 
         {{-- View Event Details --}}
         <div class="mt-4">

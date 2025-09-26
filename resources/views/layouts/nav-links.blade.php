@@ -1,4 +1,4 @@
-<x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
     {{ __('Discover') }}
 </x-nav-link>
 

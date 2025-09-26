@@ -87,19 +87,42 @@ class Event extends Model
         return max(0, $this->capacity - $this->bookings()->count());
     }
 
+    /**
+     * Helper function for starting at time
+     * 
+     * @return datetime
+     */
     public function startsAt() {
         return $this->start_time;
     }
+
+    /**
+     * Helper function for ending at time
+     * 
+     * @return datetime
+     */
     public function endsAt() {
         return $this->end_time;
     }
 
-    public function getStartsAtAttribute() {
-        return $this->start_time;
-    }
-    public function getEndsAtAttribute() {
-        return $this->end_time;
+    /**
+     * Many-to-many relationship for event tags
+     * 
+     * @return Tag
+     */
+
+    public function tags(): BelongsToMany {
+        return $this->belongsToMany(Tag::class);
     }
 
+    /**
+     * Filter events that have any of the given tag IDs 
+     */
+    public function scopeWithAnyTags($query, array $tagIds)
+    {
+        return $query->whereHas('tags', function ($q) use ($tagIds) {
+            $q->whereIn('tags.id', $tagIds);
+        });
+    }
 
 }

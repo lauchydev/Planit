@@ -15,6 +15,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         @foreach($event->bookings as $booking)
                             <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                {{-- User Picture (first letter intitial) --}}
                                 <div class="flex-shrink-0">
                                     <div class="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center">
                                         <span class="text-sm font-medium text-white">
@@ -23,9 +24,11 @@
                                     </div>
                                 </div>
                                 <div class="min-w-0 flex-1">
+                                    {{-- Username --}}
                                     <p class="text-sm font-medium text-gray-900 truncate">
                                         {{ $booking->user->name }}
                                     </p>
+                                    {{-- Booked at --}}
                                     <p class="text-xs text-gray-500">
                                         Booked {{ $booking->booked_at->diffForHumans() }}
                                     </p>

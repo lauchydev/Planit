@@ -93,5 +93,8 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        /* Seed the tags as they arent being automatically filled with a factory */
+        $this->call(TagSeeder::class);
     }
 }

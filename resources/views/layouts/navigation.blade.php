@@ -4,7 +4,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}" class="text-xl font-bold text-gray-800">
+                    <a href="{{ route('events.index') }}" class="text-xl font-bold text-gray-800">
                         {{ config('app.name', 'PlanIt') }}
                     </a>
                 </div>
