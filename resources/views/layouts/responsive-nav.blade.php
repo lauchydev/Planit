@@ -11,8 +11,8 @@
         @endif
 
         @if(auth()->user()->isOrganiser())
-            <x-responsive-nav-link :href="route('events.organised')" :active="request()->routeIs('events.organised')">
-                {{ __('My Events') }}
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
             </x-responsive-nav-link>
         @endif
     @endauth

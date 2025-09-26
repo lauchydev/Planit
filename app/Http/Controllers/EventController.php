@@ -103,20 +103,6 @@ class EventController extends Controller
         return redirect()->route('home')->with('success', 'Event Deleted Successfully');
     }
 
-    /* Organiser's events list */
-    public function organisedEvents(Request $request)
-    {
-        $user = $request->user();
-        abort_unless($user && $user->isOrganiser(), 403);
-
-        $query = Event::query()
-            ->where('organiser_id', $user->id)
-            ->withCount('bookings')
-            ->orderBy('start_time');
-
-        $events = $query->paginate(10)->withQueryString();
-        return view('events.organised', compact('events'));
-    }
 
 
 }

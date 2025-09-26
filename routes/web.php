@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,8 +24,10 @@ Route::middleware('auth')->group(function () {
     /* User Bookings */
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
-    /* Organised Events */
-    Route::get('/events/organised', [EventController::class, 'organisedEvents'])->name('events.organised');
+
+
+    /* Organiser Dashboard */
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* Protected Profile Routes */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,9 +38,6 @@ Route::middleware('auth')->group(function () {
 /* Unprotected Event Route (No auth) */
 Route::get('/events/{event}', [EventController::class, 'details'])->name('events.details');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 
 require __DIR__.'/auth.php';

@@ -23,9 +23,24 @@ class RegistrationTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'agree_privacy' => 'on',
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_user_cannot_register_without_agreeing_to_privacy_policy(): void
+    {
+        $response = $this->from('/register')->post('/register', [
+            'name' => 'Test User',
+            'email' => 'no-consent@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            // 'agree_privacy' omitted
+        ]);
+
+        $response->assertRedirect('/register');
+        $response->assertSessionHasErrors(['agree_privacy']);
     }
 }

@@ -10,11 +10,11 @@
     @endif
 
     @if(auth()->user()->isOrganiser())
+        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            {{ __('Dashboard') }}
+        </x-nav-link>
         <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
             {{ __('Create Event') }}
-        </x-nav-link>
-        <x-nav-link :href="route('events.organised')" :active="request()->routeIs('events.organised')">
-            {{ __('My Events') }}
         </x-nav-link>
     @endif
 @endauth

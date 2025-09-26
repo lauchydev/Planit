@@ -34,9 +34,9 @@ class RegisteredUserController extends Controller
             'name' => ['required','string','max:255'],
             'email' => ['required','string','email','max:255','unique:users,email'],
             'password' => ['required','confirmed', Rules\Password::defaults()],
-            'privacy_consent' => ['required','accepted'],
+            'agree_privacy' => ['required','accepted'],
         ], [
-            'privacy_consent.accepted' => 'You must accept the privacy policy to register.',
+            'agree_privacy.accepted' => 'You must accept the privacy policy to register.',
         ]);
 
         $user = User::create([
@@ -48,6 +48,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
         Auth::login($user);
-        return redirect()->route('home');
+    return redirect()->route('dashboard');
     }
 }
