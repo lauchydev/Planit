@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            {{-- Tags (ADVANCED REQUIREMENT) --}}
+            <!-- Tags (advanced req) -->
             @isset($tags)
             <div class="flex flex-wrap gap-3 items-center">
                 <span class="text-sm font-medium text-gray-700">Tags:</span>
@@ -47,6 +47,20 @@
                         <span>{{ $tag->name }}</span>
                     </label>
                 @endforeach
+            </div>
+            <!-- Add radio buttons for filter mode -->
+            <div class="flex gap-4 items-center">
+                <span class="text-sm font-medium text-gray-700">Match:</span>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="tag_match" value="any" 
+                        @checked(request('tag_match', 'any') === 'any') />
+                    <span class="ml-1">Any selected tag</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="tag_match" value="all" 
+                        @checked(request('tag_match') === 'all') />
+                    <span class="ml-1">All selected tags</span>
+                </label>
             </div>
             @endisset
 

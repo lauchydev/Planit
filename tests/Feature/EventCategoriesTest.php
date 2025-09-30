@@ -209,4 +209,137 @@ class EventCategoriesTest extends TestCase
         
         $response->assertRedirect("/events/{$event->id}");
     }
+
+    public function test_events_can_be_filtered_with_any_match_logic(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $workshopTag = Tag::factory()->create(['name' => 'Workshop']);
+        $techTag = Tag::factory()->create(['name' => 'Technology']);
+        $designTag = Tag::factory()->create(['name' => 'Design']);
+
+        // Event with only Workshop
+        $workshopOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Workshop Only Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $workshopOnly->tags()->attach($workshopTag);
+
+        // Event with only Technology
+        $techOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Tech Only Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $techOnly->tags()->attach($techTag);
+
+        // Event with both Workshop and Technology
+        $both = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Workshop and Tech Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $both->tags()->attach([$workshopTag->id, $techTag->id]);
+
+        // Event with only Design (unrelated)
+        $designOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Design Only Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $designOnly->tags()->attach($designTag);
+
+        // Test ANY match (OR logic) - should show events with Workshop OR Technology
+        $response = $this->get('/?tags[]=' . $workshopTag->id . '&tags[]=' . $techTag->id . '&tag_match=any');
+        
+        $response->assertStatus(200);
+        $response->assertSee('Workshop Only Event');  // Has Workshop
+        $response->assertSee('Tech Only Event');      // Has Technology
+        $response->assertSee('Workshop and Tech Event'); // Has both
+        $response->assertDontSee('Design Only Event'); // Has neither
+    }
+
+    public function test_events_can_be_filtered_with_all_match_logic(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $workshopTag = Tag::factory()->create(['name' => 'Workshop']);
+        $techTag = Tag::factory()->create(['name' => 'Technology']);
+        $designTag = Tag::factory()->create(['name' => 'Design']);
+
+        // Event with only Workshop
+        $workshopOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Workshop Only Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $workshopOnly->tags()->attach($workshopTag);
+
+        // Event with only Technology
+        $techOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Tech Only Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $techOnly->tags()->attach($techTag);
+
+        // Event with both Workshop and Technology
+        $both = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Workshop and Tech Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $both->tags()->attach([$workshopTag->id, $techTag->id]);
+
+        // Event with all three tags
+        $allThree = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'All Three Tags Event',
+            'start_time' => now()->addDays(7),
+        ]);
+        $allThree->tags()->attach([$workshopTag->id, $techTag->id, $designTag->id]);
+
+        // Test ALL match (AND logic) - should only show events with BOTH Workshop AND Technology
+        $response = $this->get('/?tags[]=' . $workshopTag->id . '&tags[]=' . $techTag->id . '&tag_match=all');
+        
+        $response->assertStatus(200);
+        $response->assertDontSee('Workshop Only Event');  // Missing Technology
+        $response->assertDontSee('Tech Only Event');      // Missing Workshop
+        $response->assertSee('Workshop and Tech Event');  // Has both ✓
+        $response->assertSee('All Three Tags Event');     // Has both (and more) ✓
+    }
+
+    public function test_ajax_filtering_respects_and_or_logic(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $workshopTag = Tag::factory()->create(['name' => 'Workshop']);
+        $techTag = Tag::factory()->create(['name' => 'Technology']);
+
+        $workshopOnly = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Workshop Only',
+            'start_time' => now()->addDays(7),
+        ]);
+        $workshopOnly->tags()->attach($workshopTag);
+
+        $both = Event::factory()->create([
+            'organiser_id' => $organiser->id,
+            'title' => 'Both Tags',
+            'start_time' => now()->addDays(7),
+        ]);
+        $both->tags()->attach([$workshopTag->id, $techTag->id]);
+
+        // Test AJAX with ALL logic
+        $response = $this->get('/events/filter?tags[]=' . $workshopTag->id . '&tags[]=' . $techTag->id . '&tag_match=all', [
+            'X-Requested-With' => 'XMLHttpRequest'
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(fn($json) => 
+            $json->has('html')
+                ->where('html', fn($html) => 
+                    str_contains($html, 'Both Tags') && 
+                    !str_contains($html, 'Workshop Only')
+                )
+        );
+    }
 }

@@ -116,7 +116,7 @@ class Event extends Model
     }
 
     /**
-     * Filter events that have any of the given tag IDs 
+     * Filter events that have any of the given tags (OR)
      */
     public function scopeWithAnyTags($query, array $tagIds)
     {
@@ -124,5 +124,20 @@ class Event extends Model
             $q->whereIn('tags.id', $tagIds);
         });
     }
+
+    /**
+     * Filter events that have all of the given tags (AND)
+     */
+    public function scopeWithAllTags($query, array $tagIds)
+{
+    foreach ($tagIds as $tagId) {
+        $query->whereHas('tags', function ($q) use ($tagId) {
+            $q->where('tags.id', $tagId);
+        });
+    }
+    return $query;
+}
+
+
 
 }

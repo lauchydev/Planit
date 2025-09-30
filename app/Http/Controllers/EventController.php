@@ -41,9 +41,15 @@ class EventController extends Controller
         }
 
         /* Non AJAX tag filter */
-        $tagIds = $request->input('tags', []); 
+        $tagIds = $request->input('tags', []);
+        $tagMatch = $request->input('tag_match', 'any');
+
         if (!empty($tagIds)) {
-            $query->withAnyTags($tagIds);
+            if ($tagMatch === 'all') {
+                $query->withAllTags($tagIds);
+            } else {
+                $query->withAnyTags($tagIds);
+            }
         }
 
         $events = $query->paginate(8)->withQueryString();
@@ -82,8 +88,14 @@ class EventController extends Controller
 
         /* AJAX Tag Filter */
         $tagIds = $request->input('tags', []);
+        $tagMatch = $request->input('tag_match', 'any');
+
         if (!empty($tagIds)) {
-            $query->withAnyTags($tagIds);
+            if ($tagMatch === 'all') {
+                $query->withAllTags($tagIds);
+            } else {
+                $query->withAnyTags($tagIds);
+            }
         }
 
         $events = $query->paginate(8)->withQueryString();

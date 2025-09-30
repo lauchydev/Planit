@@ -45,6 +45,18 @@
                 @endif
                 {{ $slot }}
             </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-gray-200 mt-12">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div class="text-center text-sm text-gray-600">
+                        <p class="mb-2">© {{ date('Y') }} Planit - Event Management Platform</p>
+                        <a href="{{ route('privacy.policy') }}" class="text-indigo-600 hover:text-indigo-800 underline">
+                            Privacy Policy & Terms of Use
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </div>
     </body>
 </html>

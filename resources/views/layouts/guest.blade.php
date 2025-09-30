@@ -23,6 +23,13 @@
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
             </div>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center text-sm text-gray-600">
+                <a href="{{ route('privacy.policy') }}" class="text-indigo-600 hover:text-indigo-800 underline">
+                    Privacy Policy & Terms of Use
+                </a>
+            </div>
         </div>
     </body>
 </html>
