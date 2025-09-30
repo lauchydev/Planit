@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Models\Booking;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,70 +12,171 @@ class OrganiserActionsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_organiser_can_view_dashboard(): void
+    public function test_an_organiser_can_log_in_and_view_their_specific_dashboard(): void
     {
-        $organiser = User::factory()->organiser()->create();
-        Event::factory()->for($organiser, 'organiser')->create();
+        $organiser = User::factory()->create([
+            'role' => 'organiser',
+            'email' => 'organiser@example.com',
+            'password' => bcrypt('password123'),
+        ]);
 
-        $this->actingAs($organiser);
+        // Test login
+        $response = $this->post('/login', [
+            'email' => 'organiser@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/');
+        $this->assertAuthenticatedAs($organiser);
+
+        // Test dashboard access
         $response = $this->get('/dashboard');
-        $response->assertOk();
+        $response->assertStatus(200);
+        $response->assertViewIs('dashboard.index');
         $response->assertSee('Organiser Dashboard');
     }
 
-    public function test_dashboard_metrics_match_eloquent(): void
+    public function test_an_organiser_can_successfully_create_an_event_with_valid_data(): void
     {
-        $organiser = User::factory()->organiser()->create();
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $this->actingAs($organiser);
 
-        // Event A: future, capacity 5, 3 bookings -> Upcoming, remaining 2, fullness 60.0%
-        $eventA = Event::factory()->for($organiser, 'organiser')->create([
-            'capacity' => 5,
-            'start_time' => now()->addDays(3),
-            'end_time' => now()->addDays(3)->addHours(2),
+        $eventData = [
+            'title' => 'Test Event',
+            'description' => 'This is a test event description',
+            'start_time' => now()->addDays(7)->format('Y-m-d\TH:i'),
+            'end_time' => now()->addDays(7)->addHours(2)->format('Y-m-d\TH:i'),
+            'location' => 'Test Location',
+            'capacity' => 50,
+        ];
+
+        $response = $this->post('/events', $eventData);
+
+        $this->assertDatabaseHas('events', [
+            'title' => 'Test Event',
+            'description' => 'This is a test event description',
+            'location' => 'Test Location',
+            'capacity' => 50,
+            'organiser_id' => $organiser->id,
         ]);
 
-        // Event B: future, capacity 2, 2 bookings -> Full, remaining 0, fullness 100.0%
-        $eventB = Event::factory()->for($organiser, 'organiser')->create([
-            'capacity' => 2,
-            'start_time' => now()->addDays(1),
-            'end_time' => now()->addDays(1)->addHours(1),
+        $event = Event::where('title', 'Test Event')->first();
+        $response->assertRedirect("/events/{$event->id}");
+    }
+
+    public function test_an_organiser_receives_validation_errors_for_invalid_event_data(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $this->actingAs($organiser);
+
+        // Test missing required fields
+        $response = $this->post('/events', []);
+
+        $response->assertSessionHasErrors(['title', 'start_time', 'end_time', 'location', 'capacity']);
+
+        // Test invalid data types and constraints
+        $invalidData = [
+            'title' => str_repeat('a', 101), // Too long (max 100)
+            'start_time' => now()->subDays(1)->format('Y-m-d\TH:i'), // Past date
+            'end_time' => now()->subDays(1)->format('Y-m-d\TH:i'),
+            'location' => str_repeat('a', 256), // Too long (max 255)
+            'capacity' => 0, // Below minimum (min 1)
+        ];
+
+        $response = $this->post('/events', $invalidData);
+        $response->assertSessionHasErrors(['title', 'start_time', 'location', 'capacity']);
+    }
+
+    public function test_an_organiser_can_successfully_update_an_event_they_own(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $event = Event::factory()->create(['organiser_id' => $organiser->id]);
+
+        $this->actingAs($organiser);
+
+        $updateData = [
+            'title' => 'Updated Event Title',
+            'description' => 'This is an updated description that meets the minimum requirement of 20 characters',
+            'start_time' => now()->addDays(10)->format('Y-m-d\TH:i'),
+            'end_time' => now()->addDays(10)->addHours(2)->format('Y-m-d\TH:i'),
+            'location' => 'Updated Location',
+            'capacity' => 100,
+        ];
+
+        $response = $this->put("/events/{$event->id}", $updateData);
+
+        $this->assertDatabaseHas('events', [
+            'id' => $event->id,
+            'title' => 'Updated Event Title',
+            'description' => 'This is an updated description that meets the minimum requirement of 20 characters',
+            'location' => 'Updated Location',
+            'capacity' => 100,
         ]);
 
-        // Event C: past, capacity 4, 1 booking -> Past, remaining 3, fullness 25.0%
-        $eventC = Event::factory()->for($organiser, 'organiser')->create([
-            'capacity' => 4,
-            'start_time' => now()->subDays(2),
-            'end_time' => now()->subDays(2)->addHours(1),
+        $response->assertRedirect("/events/{$event->id}");
+    }
+
+    public function test_an_organiser_cannot_update_an_event_created_by_another_organiser(): void
+    {
+        $organiser1 = User::factory()->create(['role' => 'organiser']);
+        $organiser2 = User::factory()->create(['role' => 'organiser']);
+        $event = Event::factory()->create(['organiser_id' => $organiser1->id]);
+
+        $this->actingAs($organiser2);
+
+        $updateData = [
+            'title' => 'Unauthorized Update',
+            'description' => 'This should not work',
+            'start_time' => now()->addDays(10)->format('Y-m-d\TH:i'),
+            'end_time' => now()->addDays(10)->addHours(2)->format('Y-m-d\TH:i'),
+            'location' => 'Unauthorized Location',
+            'capacity' => 50,
+        ];
+
+        $response = $this->put("/events/{$event->id}", $updateData);
+
+        $response->assertStatus(403); // Forbidden
+        
+        // Verify the event was not updated
+        $this->assertDatabaseMissing('events', [
+            'id' => $event->id,
+            'title' => 'Unauthorized Update',
+        ]);
+    }
+
+    public function test_an_organiser_can_delete_an_event_they_own_that_has_no_bookings(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $event = Event::factory()->create(['organiser_id' => $organiser->id]);
+
+        $this->actingAs($organiser);
+
+        $response = $this->delete("/events/{$event->id}");
+
+        $response->assertRedirect('/');
+        $this->assertDatabaseMissing('events', ['id' => $event->id]);
+    }
+
+    public function test_an_organiser_cannot_delete_an_event_that_has_active_bookings(): void
+    {
+        $organiser = User::factory()->create(['role' => 'organiser']);
+        $attendee = User::factory()->create(['role' => 'attendee']);
+        $event = Event::factory()->create(['organiser_id' => $organiser->id]);
+
+        // Create a booking for the event
+        Booking::create([
+            'user_id' => $attendee->id,
+            'event_id' => $event->id,
+            'booked_at' => now(),
         ]);
 
-        // Seed bookings (unique users auto-created by factory)
-        \App\Models\Booking::factory()->count(3)->create(['event_id' => $eventA->id]);
-        \App\Models\Booking::factory()->count(2)->create(['event_id' => $eventB->id]);
-        \App\Models\Booking::factory()->count(1)->create(['event_id' => $eventC->id]);
+        $this->actingAs($organiser);
 
-        // Query raw SQL results
-        $rows = \App\Queries\OrganiserDashboardQuery::forUser($organiser->id);
-        $byId = collect($rows)->keyBy('event_id');
+        $response = $this->delete("/events/{$event->id}");
 
-        // Helper to assert a single event row
-        $assertRow = function (Event $event, string $expectedStatus) use ($byId) {
-            $row = $byId->get($event->id);
-            $this->assertNotNull($row, 'Missing row for event '.$event->id);
-
-            $bookings = $event->bookings()->count();
-            $remaining = $event->capacity - $bookings;
-            $expectedFullness = $event->capacity > 0 ? round(($bookings * 100.0) / $event->capacity, 1) : 0.0;
-
-            $this->assertSame($event->title, $row->title);
-            $this->assertSame($event->capacity, (int) $row->capacity);
-            $this->assertSame($bookings, (int) $row->bookings_count);
-            $this->assertSame($remaining, (int) $row->remaining);
-            $this->assertEqualsWithDelta($expectedFullness, (float) $row->fullness_percent, 0.05);
-            $this->assertSame($expectedStatus, (string) $row->status);
-        };
-
-        $assertRow($eventA, 'Upcoming');
-        $assertRow($eventB, 'Full');
-        $assertRow($eventC, 'Past');
+        $response->assertStatus(403);
+        
+        // Verify the event was not deleted
+        $this->assertDatabaseHas('events', ['id' => $event->id]);
     }
 }

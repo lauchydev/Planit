@@ -51,6 +51,21 @@
                     @endif
                 </div>
             </div>
+            {{-- Tags --}}
+            @if($event->tags->isNotEmpty())
+                <div class="flex items-start space-x-3">
+                    <x-lucide-tag class="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Tags</h3>
+                        @foreach ( $event->tags as $tag )
+                            <span class="text-blue-500 mt-1 inline-block bg-blue-100 px-2 py-0.5 rounded mr-1">{{ $tag->name }}</span>
+                            
+                        @endforeach
+                    </div>
+                </div>
+            @else
+
+            @endif
         </div>
 
         <div class="border-t pt-6">

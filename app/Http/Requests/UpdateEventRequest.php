@@ -30,6 +30,8 @@ class UpdateEventRequest extends FormRequest
             'end_time' => ['required', 'date', 'after:start_time'],
             'location' => ['required', 'string', 'max:255'],
             'capacity' => ['required', 'integer', 'min:1', 'max:1000'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ];
     }
 }

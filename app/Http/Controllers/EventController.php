@@ -103,8 +103,9 @@ class EventController extends Controller
     /* Create Event */
     public function create()
     {
+        $allTags = Tag::orderBy('name')->get();
         $this->authorize('create', Event::class);
-        return view('events.create');
+        return view('events.create', compact('allTags'));
     }
 
     /* Handle Event Creation */
@@ -112,21 +113,25 @@ class EventController extends Controller
     {
         $data = $request->validated();
         $data['organiser_id'] = auth()->id();
-        $event = Event::create($data);
+        $event = Event::create($data + ['organiser_id' => auth()->id()]);
+        $event->tags()->sync($request->input('tags', []));
         return redirect()->route('events.details', $event)->with('success', 'Event Created Successfully');
     }
 
     /* Update Event */
     public function update(Event $event)
     {
+        $event->load('tags');
+        $allTags = Tag::orderBy('name')->get();
         $this->authorize('update', $event);
-        return view('events.edit', compact('event'));
+        return view('events.edit', compact('event', 'allTags'));
     }
 
     /* Handle Event Update */
     public function handleUpdate(UpdateEventRequest $request, Event $event) {
         $data = $request->validated();
         $event->update($data);
+        $event->tags()->sync($request->input('tags', []));
         return redirect()->route('events.details', $event)->with('success', 'Event Updated Successfully');
     }
 

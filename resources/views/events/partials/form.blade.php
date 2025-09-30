@@ -1,5 +1,6 @@
 @csrf
 <div class="space-y-5">
+    {{-- Title --}}
     <div>
         <label class="block text-sm font-medium text-gray-700">Title</label>
         <input name="title" maxlength="100" required
@@ -7,7 +8,7 @@
                class="mt-1 w-full border-gray-300 rounded-md" placeholder="max 255 chars" />
         <x-input-error :messages="$errors->get('title')" class="mt-1"/>
     </div>
-
+    {{-- Description --}}
     <div>
         <label class="block text-sm font-medium text-gray-700">Description</label>
         <textarea name="description" rows="5" required
@@ -15,6 +16,7 @@
         <x-input-error :messages="$errors->get('description')" class="mt-1"/>
     </div>
 
+    {{-- Date/Time --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700">Start Time</label>
@@ -31,7 +33,7 @@
             <x-input-error :messages="$errors->get('end_time')" class="mt-1"/>
         </div>
     </div>
-
+    {{-- Location --}}
     <div>
         <label class="block text-sm font-medium text-gray-700">Location</label>
         <input name="location" required
@@ -40,12 +42,41 @@
         <x-input-error :messages="$errors->get('location')" class="mt-1"/>
     </div>
 
+    {{-- Capcity --}}
     <div>
         <label class="block text-sm font-medium text-gray-700">Capacity</label>
         <input type="number" name="capacity" min="1" max="1000" required
                value="{{ old('capacity', $event->capacity ?? '') }}"
                class="mt-1 w-full border-gray-300 rounded-md" placeholder="1-1000"/>
         <x-input-error :messages="$errors->get('capacity')" class="mt-1"/>
+    </div>
+
+    {{-- Tags --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Tags</label>
+        @php
+            // Selected tags = old input (validation error) OR current event tags (on edit)
+            $selectedTagIds = collect(old('tags', isset($event) ? $event->tags->pluck('id')->all() : []))
+                ->map(fn($v) => (int) $v)
+                ->all();
+        @endphp
+
+        <div class="mt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            @foreach($allTags ?? [] as $tag)
+                <label class="inline-flex items-center gap-2 text-sm border rounded px-2 py-1 bg-white">
+                    <input
+                        type="checkbox"
+                        name="tags[]"
+                        value="{{ $tag->id }}"
+                        @checked(in_array($tag->id, $selectedTagIds, true))
+                    />
+                    <span>{{ $tag->name }}</span>
+                </label>
+            @endforeach
+        </div>
+
+        <x-input-error :messages="$errors->get('tags')" class="mt-1"/>
+        <x-input-error :messages="$errors->get('tags.*')" class="mt-1"/>
     </div>
 
     <div class="pt-2 flex flex-wrap items-center gap-3">
