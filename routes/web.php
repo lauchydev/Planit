@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/filter', [EventController::class, 'filter'])->name('events.filter');
 
-/* Privacy Policy (Public) */
+/* Privacy Policy */
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
 
 Route::middleware('auth')->group(function () {

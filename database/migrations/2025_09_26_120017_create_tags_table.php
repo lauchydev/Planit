@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Duplicate migration guard: canonical tags table is created earlier
         if (Schema::hasTable('tags')) {
             return;
         }

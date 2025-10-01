@@ -6,7 +6,7 @@ use App\Models\Event;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\CreateEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -121,7 +121,7 @@ class EventController extends Controller
     }
 
     /* Handle Event Creation */
-    public function handleCreate(StoreEventRequest $request)
+    public function handleCreate(CreateEventRequest $request)
     {
         $data = $request->validated();
         $data['organiser_id'] = auth()->id();

@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'organiser@email.com'],
             [
-                'name' => 'Organiser',
+                'name' => 'Dr. Lauchlan Thomson',
                 'role' => 'organiser',
                 'password' => bcrypt('password'),
             ],
@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'user@email.com'],
             [
-                'name' => 'Attendee',
+                'name' => 'David Chen',
                 'role' => 'attendee',
                 'password' => bcrypt('password'),
             ],

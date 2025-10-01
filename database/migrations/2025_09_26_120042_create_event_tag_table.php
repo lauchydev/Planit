@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Duplicate migration guard: pivot was created earlier
         if (Schema::hasTable('event_tag')) {
             return;
         }

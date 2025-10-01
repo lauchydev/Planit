@@ -8,7 +8,7 @@ use App\Models\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 
-class EventValidationTest extends TestCase
+class Validation extends TestCase
 {
     use RefreshDatabase;
 
